@@ -1,0 +1,37 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-tastin-dev-68e4e-authRole",
+      "UnauthRoleArn": "arn:aws:iam::544547773695:role/amplify-tastin-dev-68e4e-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::544547773695:role/amplify-tastin-dev-68e4e-authRole",
+      "Region": "ap-northeast-1",
+      "DeploymentBucketName": "amplify-tastin-dev-68e4e-deployment",
+      "UnauthRoleName": "amplify-tastin-dev-68e4e-unauthRole",
+      "StackName": "amplify-tastin-dev-68e4e",
+      "StackId": "arn:aws:cloudformation:ap-northeast-1:544547773695:stack/amplify-tastin-dev-68e4e/f51a3810-2482-11f0-8d7a-0a0da064c97f",
+      "AmplifyAppId": "d1zww5au2x8l4"
+    },
+    "categories": {
+      "auth": {
+        "tastin56e9908d": {}
+      },
+      "function": {
+        "taskReminder": {
+          "apiTastinGraphqlapiendpointoutput": "AMPLIFY_API_ENDPOINT"
+        },
+        "routineTaskReset": {
+          "apiTastinGraphqlapiendpointoutput": "AMPLIFY_API_ENDPOINT"
+        },
+        "notificationFunction": {
+          "sesSenderEmail": "tastinwebapp@gmail.com"
+        }
+      },
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d1zww5au2x8l4",
+          "type": "manual"
+        }
+      }
+    }
+  }
+}

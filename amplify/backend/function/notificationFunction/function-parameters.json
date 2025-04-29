@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "auth": {
+      "tastin56e9908d": [
+        "create",
+        "read",
+        "update",
+        "delete"
+      ]
+    },
+    "api": {
+      "tastinapi": [
+        "Query",
+        "Mutation"
+      ]
+    }
+  },
+  "lambdaLayers": [],
+  "environmentVariableList": [
+    {
+      "cloudFormationParameterName": "sesSenderEmail",
+      "environmentVariableName": "SES_SENDER_EMAIL"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "resourceName": "tastinstorage",
+  "policyUUID": "1ee405ae",
+  "bucketName": "tastin-user-content",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}

@@ -1,0 +1,148 @@
+type User @model
+@auth(rules: [
+  { allow: owner, operations: [create, read, update, delete] },
+  { allow: groups, groups: ["admin"], operations: [read, update, delete] }
+]) {
+  id: ID!
+  username: String!
+  email: String!
+  subscription: String!
+  settings: AWSJSON
+  teamBoardMembers: [TeamBoardMember] @connection(keyName: "byUser", fields: ["id"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type TeamBoard @model
+@auth(rules: [
+  { allow: groups, groups: ["admin"], operations: [create, read, update, delete] },
+  { allow: groups, groups: ["task_manager"], operations: [read, update] },
+  { allow: groups, groups: ["user"], operations: [read] }
+]) {
+  id: ID!
+  name: String!
+  description: String
+  ownerId: ID!
+  members: [TeamBoardMember] @connection(keyName: "byTeamBoard", fields: ["id"])
+  kanbans: [Kanban] @connection(keyName: "byTeamBoard", fields: ["id"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type TeamBoardMember @model
+  @key(name: "byTeamBoard", fields: ["teamBoardId"])
+  @key(name: "byUser", fields: ["userId"])
+  @auth(rules: [
+    { allow: groups, groups: ["admin"], operations: [create, read, update, delete] },
+    { allow: groups, groups: ["task_manager", "user"], operations: [read] }
+  ]) {
+  id: ID!
+  teamBoardId: ID!
+  teamBoard: TeamBoard @connection(fields: ["teamBoardId"])
+  userId: ID!
+  user: User @connection(fields: ["userId"])
+  role: String!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Kanban @model
+  @key(name: "byTeamBoard", fields: ["teamBoardId"])
+  @auth(rules: [
+    { allow: groups, groups: ["admin", "task_manager"], operations: [create, read, update, delete] },
+    { allow: groups, groups: ["user"], operations: [read] }
+  ]) {
+  id: ID!
+  teamBoardId: ID!
+  teamBoard: TeamBoard @connection(fields: ["teamBoardId"])
+  name: String!
+  type: String!
+  resetPeriod: String
+  order: Int!
+  tasks: [Task] @connection(keyName: "byKanban", fields: ["id"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Task @model
+  @key(name: "byKanban", fields: ["kanbanId"])
+  @key(name: "byUser", fields: ["assignedUserId"])
+  @auth(rules: [
+    { allow: groups, groups: ["admin", "task_manager"], operations: [create, read, update, delete] },
+    { allow: groups, groups: ["user"], operations: [read, update] }
+  ]) {
+  id: ID!
+  kanbanId: ID!
+  kanban: Kanban @connection(fields: ["kanbanId"])
+  content: String!
+  dueDate: AWSDateTime
+  assignedUserId: ID
+  assignedUser: User @connection(fields: ["assignedUserId"])
+  completed: Boolean!
+  memos: [TaskMemo] @connection(keyName: "byTask", fields: ["id"])
+  createdBy: ID!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type CompletedTask @model
+  @auth(rules: [
+    { allow: groups, groups: ["admin", "task_manager", "user"], operations: [create, read] },
+    { allow: groups, groups: ["admin", "task_manager"], operations: [delete] }
+  ]) {
+  id: ID!
+  originalTaskId: ID!
+  kanbanId: ID!
+  teamBoardId: ID!
+  content: String!
+  completedBy: ID!
+  completedUser: User @connection(fields: ["completedBy"])
+  comments: [Comment] @connection(keyName: "byCompletedTask", fields: ["id"])
+  completedAt: AWSDateTime!
+  createdAt: AWSDateTime!
+}
+
+type IncompletedTask @model
+  @auth(rules: [
+    { allow: groups, groups: ["admin", "task_manager", "user"], operations: [read] },
+    { allow: groups, groups: ["admin", "task_manager"], operations: [create, delete] }
+  ]) {
+  id: ID!
+  originalTaskId: ID!
+  kanbanId: ID!
+  teamBoardId: ID!
+  content: String!
+  dueDate: AWSDateTime
+  missedAt: AWSDateTime!
+  createdAt: AWSDateTime!
+}
+
+type Comment @model
+  @key(name: "byCompletedTask", fields: ["completedTaskId"])
+  @auth(rules: [
+    { allow: owner, operations: [create, read, update, delete] },
+    { allow: groups, groups: ["admin", "task_manager", "user"], operations: [read] }
+  ]) {
+  id: ID!
+  completedTaskId: ID!
+  completedTask: CompletedTask @connection(fields: ["completedTaskId"])
+  userId: ID!
+  user: User @connection(fields: ["userId"])
+  content: String!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type TaskMemo @model
+  @key(name: "byTask", fields: ["taskId"])
+  @auth(rules: [
+    { allow: owner, operations: [create, read, update, delete] },
+    { allow: groups, groups: ["admin", "task_manager", "user"], operations: [read] }
+  ]) {
+  id: ID!
+  taskId: ID!
+  task: Task @connection(fields: ["taskId"])
+  content: String!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
