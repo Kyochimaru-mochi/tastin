@@ -30,16 +30,14 @@ type TeamBoard @model
 }
 
 type TeamBoardMember @model
-  @index(name: "byTeamBoard", fields: ["teamBoardId"])
-  @index(name: "byUser", fields: ["userId"])
   @auth(rules: [
     { allow: groups, groups: ["admin"], operations: [create, read, update, delete] },
     { allow: groups, groups: ["task_manager", "user"], operations: [read] }
   ]) {
   id: ID!
-  teamBoardId: ID!
+  teamBoardId: ID! @index(name: "byTeamBoard")
   teamBoard: TeamBoard @belongsTo(fields: ["teamBoardId"])
-  userId: ID!
+  userId: ID! @index(name: "byUser")
   user: User @belongsTo(fields: ["userId"])
   role: String!
   createdAt: AWSDateTime!
@@ -47,13 +45,12 @@ type TeamBoardMember @model
 }
 
 type Kanban @model
-  @index(name: "byTeamBoard", fields: ["teamBoardId"])
   @auth(rules: [
     { allow: groups, groups: ["admin", "task_manager"], operations: [create, read, update, delete] },
     { allow: groups, groups: ["user"], operations: [read] }
   ]) {
   id: ID!
-  teamBoardId: ID!
+  teamBoardId: ID! @index(name: "byTeamBoard")
   teamBoard: TeamBoard @belongsTo(fields: ["teamBoardId"])
   name: String!
   type: String!
@@ -65,18 +62,16 @@ type Kanban @model
 }
 
 type Task @model
-  @index(name: "byKanban", fields: ["kanbanId"])
-  @index(name: "byUser", fields: ["assignedUserId"])
   @auth(rules: [
     { allow: groups, groups: ["admin", "task_manager"], operations: [create, read, update, delete] },
     { allow: groups, groups: ["user"], operations: [read, update] }
   ]) {
   id: ID!
-  kanbanId: ID!
+  kanbanId: ID! @index(name: "byKanban")
   kanban: Kanban @belongsTo(fields: ["kanbanId"])
   content: String!
   dueDate: AWSDateTime
-  assignedUserId: ID
+  assignedUserId: ID @index(name: "byUser")
   assignedUser: User @belongsTo(fields: ["assignedUserId"])
   completed: Boolean!
   memos: [TaskMemo] @hasMany(indexName: "byTask", fields: ["id"])
@@ -118,13 +113,12 @@ type IncompletedTask @model
 }
 
 type Comment @model
-  @index(name: "byCompletedTask", fields: ["completedTaskId"])
   @auth(rules: [
     { allow: owner, operations: [create, read, update, delete] },
     { allow: groups, groups: ["admin", "task_manager", "user"], operations: [read] }
   ]) {
   id: ID!
-  completedTaskId: ID!
+  completedTaskId: ID! @index(name: "byCompletedTask")
   completedTask: CompletedTask @belongsTo(fields: ["completedTaskId"])
   userId: ID!
   user: User @belongsTo(fields: ["userId"])
@@ -134,13 +128,12 @@ type Comment @model
 }
 
 type TaskMemo @model
-  @index(name: "byTask", fields: ["taskId"])
   @auth(rules: [
     { allow: owner, operations: [create, read, update, delete] },
     { allow: groups, groups: ["admin", "task_manager", "user"], operations: [read] }
   ]) {
   id: ID!
-  taskId: ID!
+  taskId: ID! @index(name: "byTask")
   task: Task @belongsTo(fields: ["taskId"])
   content: String!
   createdAt: AWSDateTime!
