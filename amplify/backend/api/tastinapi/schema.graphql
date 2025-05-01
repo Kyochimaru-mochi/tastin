@@ -10,6 +10,8 @@ type User @model
   settings: AWSJSON
   teamBoardMembers: [TeamBoardMember] @hasMany(indexName: "byUser", fields: ["id"])
   assignedTasks: [Task] @hasMany(indexName: "byUser", fields: ["id"]) 
+  completedTasks: [CompletedTask] @hasMany(fields: ["id"])
+  comments: [Comment] @hasMany(fields: ["id"])
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
 }
