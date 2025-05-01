@@ -9,6 +9,7 @@ type User @model
   subscription: String!
   settings: AWSJSON
   teamBoardMembers: [TeamBoardMember] @hasMany(indexName: "byUser", fields: ["id"])
+  assignedTasks: [Task] @hasMany(indexName: "byUser", fields: ["id"]) 
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
 }
