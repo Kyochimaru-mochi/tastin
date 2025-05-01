@@ -8,7 +8,7 @@ type User @model
   email: String!
   subscription: String!
   settings: AWSJSON
-  teamBoardMembers: [TeamBoardMember] @connection(keyName: "byUser", fields: ["id"])
+  teamBoardMembers: [TeamBoardMember] @hasMany(indexName: "byUser", fields: ["id"])
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
 }
@@ -23,63 +23,63 @@ type TeamBoard @model
   name: String!
   description: String
   ownerId: ID!
-  members: [TeamBoardMember] @connection(keyName: "byTeamBoard", fields: ["id"])
-  kanbans: [Kanban] @connection(keyName: "byTeamBoard", fields: ["id"])
+  members: [TeamBoardMember] @hasMany(indexName: "byTeamBoard", fields: ["id"])
+  kanbans: [Kanban] @hasMany(indexName: "byTeamBoard", fields: ["id"])
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
 }
 
 type TeamBoardMember @model
-  @key(name: "byTeamBoard", fields: ["teamBoardId"])
-  @key(name: "byUser", fields: ["userId"])
+  @index(name: "byTeamBoard", fields: ["teamBoardId"])
+  @index(name: "byUser", fields: ["userId"])
   @auth(rules: [
     { allow: groups, groups: ["admin"], operations: [create, read, update, delete] },
     { allow: groups, groups: ["task_manager", "user"], operations: [read] }
   ]) {
   id: ID!
   teamBoardId: ID!
-  teamBoard: TeamBoard @connection(fields: ["teamBoardId"])
+  teamBoard: TeamBoard @belongsTo(fields: ["teamBoardId"])
   userId: ID!
-  user: User @connection(fields: ["userId"])
+  user: User @belongsTo(fields: ["userId"])
   role: String!
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
 }
 
 type Kanban @model
-  @key(name: "byTeamBoard", fields: ["teamBoardId"])
+  @index(name: "byTeamBoard", fields: ["teamBoardId"])
   @auth(rules: [
     { allow: groups, groups: ["admin", "task_manager"], operations: [create, read, update, delete] },
     { allow: groups, groups: ["user"], operations: [read] }
   ]) {
   id: ID!
   teamBoardId: ID!
-  teamBoard: TeamBoard @connection(fields: ["teamBoardId"])
+  teamBoard: TeamBoard @belongsTo(fields: ["teamBoardId"])
   name: String!
   type: String!
   resetPeriod: String
   order: Int!
-  tasks: [Task] @connection(keyName: "byKanban", fields: ["id"])
+  tasks: [Task] @hasMany(indexName: "byKanban", fields: ["id"])
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
 }
 
 type Task @model
-  @key(name: "byKanban", fields: ["kanbanId"])
-  @key(name: "byUser", fields: ["assignedUserId"])
+  @index(name: "byKanban", fields: ["kanbanId"])
+  @index(name: "byUser", fields: ["assignedUserId"])
   @auth(rules: [
     { allow: groups, groups: ["admin", "task_manager"], operations: [create, read, update, delete] },
     { allow: groups, groups: ["user"], operations: [read, update] }
   ]) {
   id: ID!
   kanbanId: ID!
-  kanban: Kanban @connection(fields: ["kanbanId"])
+  kanban: Kanban @belongsTo(fields: ["kanbanId"])
   content: String!
   dueDate: AWSDateTime
   assignedUserId: ID
-  assignedUser: User @connection(fields: ["assignedUserId"])
+  assignedUser: User @belongsTo(fields: ["assignedUserId"])
   completed: Boolean!
-  memos: [TaskMemo] @connection(keyName: "byTask", fields: ["id"])
+  memos: [TaskMemo] @hasMany(indexName: "byTask", fields: ["id"])
   createdBy: ID!
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
@@ -96,8 +96,8 @@ type CompletedTask @model
   teamBoardId: ID!
   content: String!
   completedBy: ID!
-  completedUser: User @connection(fields: ["completedBy"])
-  comments: [Comment] @connection(keyName: "byCompletedTask", fields: ["id"])
+  completedUser: User @belongsTo(fields: ["completedBy"])
+  comments: [Comment] @hasMany(indexName: "byCompletedTask", fields: ["id"])
   completedAt: AWSDateTime!
   createdAt: AWSDateTime!
 }
@@ -118,30 +118,30 @@ type IncompletedTask @model
 }
 
 type Comment @model
-  @key(name: "byCompletedTask", fields: ["completedTaskId"])
+  @index(name: "byCompletedTask", fields: ["completedTaskId"])
   @auth(rules: [
     { allow: owner, operations: [create, read, update, delete] },
     { allow: groups, groups: ["admin", "task_manager", "user"], operations: [read] }
   ]) {
   id: ID!
   completedTaskId: ID!
-  completedTask: CompletedTask @connection(fields: ["completedTaskId"])
+  completedTask: CompletedTask @belongsTo(fields: ["completedTaskId"])
   userId: ID!
-  user: User @connection(fields: ["userId"])
+  user: User @belongsTo(fields: ["userId"])
   content: String!
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
 }
 
 type TaskMemo @model
-  @key(name: "byTask", fields: ["taskId"])
+  @index(name: "byTask", fields: ["taskId"])
   @auth(rules: [
     { allow: owner, operations: [create, read, update, delete] },
     { allow: groups, groups: ["admin", "task_manager", "user"], operations: [read] }
   ]) {
   id: ID!
   taskId: ID!
-  task: Task @connection(fields: ["taskId"])
+  task: Task @belongsTo(fields: ["taskId"])
   content: String!
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
